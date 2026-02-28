@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCA 2026 Prom Playlist</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --accent: #e8ff47;
+    --accent2: #ff6b6b;
+    --text: #f0f0f0;
+    --muted: #6b6b80;
+    --border: #2a2a38;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,255,71,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    to { transform: translate(100px, 80px); }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  /* LOGIN SCREEN */
+  #login-screen, #submit-screen, #success-screen { display: none; }
+  #login-screen.active, #submit-screen.active, #success-screen.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .card-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-bottom: 20px;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,255,71,0.1);
+  }
+
+  select option { background: var(--surface2); }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .key-input {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 8px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    margin-top: 12px;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .error-msg {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 8px;
+    color: var(--accent2);
+    font-size: 13px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  /* USER HEADER */
+  .user-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .avatar {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: #0a0a0f;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+
+  .user-key {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .field-row { margin-bottom: 20px; }
+  .field-row input, .field-row select, .field-row textarea { margin-bottom: 0; }
+
+  /* MOOD TAGS */
+  .mood-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .mood-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .mood-tag.selected {
+    background: rgba(232,255,71,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* RATING STARS */
+  .stars {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .star {
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--border);
+    transition: color 0.1s, transform 0.1s;
+    line-height: 1;
+  }
+
+  .star.lit { color: var(--accent); }
+  .star:hover { transform: scale(1.2); }
+
+  /* SUCCESS */
+  .success-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    animation: pop 0.4s ease both;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .success-detail {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* PREVIOUS SUBMISSIONS */
+  .prev-section { margin-top: 28px; }
+
+  .prev-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .prev-song {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .prev-song-info .song-name {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .prev-song-info .song-meta {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .prev-song .song-rating {
+    font-size: 12px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">CCA PROM<span> 2026 PLAYLIST</span></div>
+  <div class="tagline">Music · Submissions · Your Picks</div>
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="active">
+    <div class="card">
+      <div class="card-title">Enter Your Key</div>
+      <div class="card-sub">Got a key from the organizer? Type it below to access your personal submission page.</div>
+      <div class="error-msg" id="login-error">That key doesn't match anyone. Double-check and try again.</div>
+      <label for="key-input">Your Access Key</label>
+      <input type="text" id="key-input" class="key-input" placeholder="XXXX" maxlength="6" autocomplete="off" spellcheck="false">
+      <button class="btn" onclick="doLogin()">ENTER</button>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div id="submit-screen">
+    <div class="card">
+      <div class="user-header">
+        <div class="avatar" id="avatar-letter">B</div>
+        <div>
+          <div class="user-name" id="display-name">Brooks</div>
+          <div class="user-key" id="display-key">KEY: XD1Z</div>
+        </div>
+      </div>
+
+      <div class="card-title">Add a Song</div>
+      <div class="card-sub">Share a track that's been on your mind lately.</div>
+
+      <div class="field-row">
+        <label>Song Title</label>
+        <input type="text" id="song-title" placeholder="e.g. Blinding Lights">
+      </div>
+
+      <div class="field-row">
+        <label>Artist</label>
+        <input type="text" id="song-artist" placeholder="e.g. The Weeknd">
+      </div>
+
+      <div class="field-row">
+        <label>Genre</label>
+        <select id="song-genre">
+          <option value="">— Select genre —</option>
+          <option>Pop</option>
+          <option>Hip-Hop / Rap</option>
+          <option>R&B / Soul</option>
+          <option>Rock</option>
+          <option>Alternative / Indie</option>
+          <option>Electronic / EDM</option>
+          <option>Country</option>
+          <option>Jazz</option>
+          <option>Classical</option>
+          <option>Metal</option>
+          <option>Folk / Acoustic</option>
+          <option>Latin</option>
+          <option>Reggae</option>
+          <option>Funk / Disco</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>Vibe / Mood</label>
+        <div class="mood-tags" id="mood-tags">
+          <span class="mood-tag" onclick="toggleMood(this)">🔥 Hype</span>
+          <span class="mood-tag" onclick="toggleMood(this)">😢 Emotional</span>
+          <span class="mood-tag" onclick="toggleMood(this)">🌊 Chill</span>
+          <span class="mood-tag" onclick="toggleMood(this)">💃 Dance</span>
+          <span class="mood-tag" onclick="toggleMood(this)">🌙 Late Night</span>
+          <span class="mood-tag" onclick="toggleMood(this)">☀️ Feel Good</span>
+          <span class="mood-tag" onclick="toggleMood(this)">🎭 Dramatic</span>
+          <span class="mood-tag" onclick="toggleMood(this)">🧠 Deep</span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Your Rating</label>
+        <div class="stars" id="stars">
+          <span class="star" onclick="setRating(1)">★</span>
+          <span class="star" onclick="setRating(2)">★</span>
+          <span class="star" onclick="setRating(3)">★</span>
+          <span class="star" onclick="setRating(4)">★</span>
+          <span class="star" onclick="setRating(5)">★</span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Why this song? (optional)</label>
+        <textarea id="song-note" placeholder="What does this song mean to you, or why are you picking it?"></textarea>
+      </div>
+
+      <button class="btn" onclick="submitSong()">SUBMIT SONG</button>
+      <button class="btn btn-ghost" onclick="doLogout()">LOG OUT</button>
+
+      <div class="prev-section" id="prev-section" style="display:none">
+        <hr class="section-divider">
+        <div class="prev-title">Your Previous Submissions</div>
+        <div id="prev-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-screen">
+    <div class="card" style="text-align:center">
+      <div class="success-icon">🎵</div>
+      <div class="success-title">Song Added!</div>
+      <div class="success-detail" id="success-detail">Your pick has been submitted and the organizer can now see it.</div>
+      <button class="btn" onclick="addAnother()">ADD ANOTHER</button>
+      <button class="btn btn-ghost" onclick="doLogout()">LOG OUT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // USER ROSTER — edit keys here to match your assignments
+  // ============================================================
+  const USERS = {
+    "AV3K": { name: "Ava" },
+    "BR9M": { name: "Brendan" },
+    "BK4X": { name: "Brooks" },
+    "CT7P": { name: "Carter" },
+    "CD2W": { name: "Charlotte D" },
+    "CU5R": { name: "Charlotte U" },
+    "CL8N": { name: "Clara" },
+    "EV1Q": { name: "Evelyn" },
+    "FN6T": { name: "Fin" },
+    "GR3Y": { name: "Grayson" },
+    "GF0L": { name: "Griffin" },
+    "IB7S": { name: "Isabel" },
+    "JD4V": { name: "Jaden" },
+    "JM2H": { name: "Jimmy" },
+    "JL9E": { name: "Julian" },
+    "RG5B": { name: "Regan" },
+    "RJ0C": { name: "RJ" },
+    "RY8A": { name: "Ryan" },
+    "ST6Z": { name: "Steve" },
+  };
+
+  let currentUser = null;
+  let currentKey = null;
+  let rating = 0;
+
+  function show(id) {
+    document.querySelectorAll('#login-screen,#submit-screen,#success-screen')
+      .forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function doLogin() {
+    const key = document.getElementById('key-input').value.trim().toUpperCase();
+    const user = USERS[key];
+    if (!user) {
+      document.getElementById('login-error').classList.add('show');
+      return;
+    }
+    document.getElementById('login-error').classList.remove('show');
+    currentUser = user;
+    currentKey = key;
+    document.getElementById('avatar-letter').textContent = user.name[0];
+    document.getElementById('display-name').textContent = user.name;
+    document.getElementById('display-key').textContent = 'KEY: ' + key;
+    loadPrevious();
+    show('submit-screen');
+  }
+
+  function doLogout() {
+    currentUser = null; currentKey = null; rating = 0;
+    document.getElementById('key-input').value = '';
+    clearForm();
+    show('login-screen');
+  }
+
+  function toggleMood(el) { el.classList.toggle('selected'); }
+
+  function setRating(n) {
+    rating = n;
+    document.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.toggle('lit', i < n);
+    });
+  }
+
+  function clearForm() {
+    ['song-title','song-artist','song-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('song-genre').value = '';
+    document.querySelectorAll('.mood-tag').forEach(t => t.classList.remove('selected'));
+    rating = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('lit'));
+  }
+
+  async function submitSong() {
+    const title = document.getElementById('song-title').value.trim();
+    const artist = document.getElementById('song-artist').value.trim();
+    const genre = document.getElementById('song-genre').value;
+    if (!title || !artist || !genre) {
+      alert('Please fill in title, artist, and genre at minimum.');
+      return;
+    }
+
+    const moods = [...document.querySelectorAll('.mood-tag.selected')].map(t => t.textContent);
+    const note = document.getElementById('song-note').value.trim();
+
+    const entry = {
+      title, artist, genre,
+      moods,
+      rating,
+      note,
+      submittedAt: new Date().toISOString(),
+    };
+
+    // Load existing, append, save
+    let existing = [];
+    try {
+      const res = await window.storage.get('songs:' + currentKey);
+      if (res) existing = JSON.parse(res.value);
+    } catch(e) {}
+    existing.push(entry);
+    await window.storage.set('songs:' + currentKey, JSON.stringify(existing));
+
+    document.getElementById('success-detail').textContent =
+      `"${title}" by ${artist} has been submitted. The organizer can now see it!`;
+
+    clearForm();
+    show('success-screen');
+  }
+
+  function addAnother() {
+    loadPrevious();
+    show('submit-screen');
+  }
+
+  async function loadPrevious() {
+    try {
+      const res = await window.storage.get('songs:' + currentKey);
+      if (!res) return;
+      const songs = JSON.parse(res.value);
+      if (!songs.length) return;
+      const list = document.getElementById('prev-list');
+      list.innerHTML = songs.slice().reverse().map(s => `
+        <div class="prev-song">
+          <div class="prev-song-info">
+            <div class="song-name">${s.title} — ${s.artist}</div>
+            <div class="song-meta">${s.genre}${s.moods.length ? ' · ' + s.moods.join(', ') : ''}</div>
+          </div>
+          ${s.rating ? `<div class="song-rating">${'★'.repeat(s.rating)}</div>` : ''}
+        </div>
+      `).join('');
+      document.getElementById('prev-section').style.display = 'block';
+    } catch(e) {}
+  }
+
+  // Enter key on login
+  document.getElementById('key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>
