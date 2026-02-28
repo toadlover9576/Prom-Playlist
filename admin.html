@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — The Playlist</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080810;
+    --surface: #10101a;
+    --surface2: #18182a;
+    --accent: #e8ff47;
+    --accent2: #ff6b6b;
+    --accent3: #6bf5ff;
+    --text: #f0f0f0;
+    --muted: #6b6b80;
+    --border: #22223a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+  }
+
+  .topbar-logo span { color: var(--accent); }
+
+  .badge {
+    background: rgba(232,255,71,0.15);
+    border: 1px solid rgba(232,255,71,0.3);
+    border-radius: 20px;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    text-transform: uppercase;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 6px 16px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .btn-logout:hover { color: var(--text); border-color: var(--text); }
+
+  /* LOGIN */
+  #admin-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    padding: 32px;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .login-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-bottom: 20px;
+  }
+
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,255,71,0.1); }
+
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #080810;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn:hover { opacity: 0.9; }
+
+  .error-msg {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 8px;
+    color: var(--accent2);
+    font-size: 13px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  /* DASHBOARD */
+  #admin-dashboard { display: none; }
+
+  .dash-header {
+    padding: 32px 32px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .dash-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+  }
+
+  .stat-chip .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-chip .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    padding: 0 32px 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-bar input, .filter-bar select {
+    margin: 0;
+    max-width: 200px;
+    font-size: 13px;
+    padding: 9px 14px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* PERSON CARDS GRID */
+  .grid {
+    padding: 0 32px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .person-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .person-card:hover { border-color: #3a3a55; }
+
+  .person-card.has-songs { border-color: #2a2a45; }
+
+  .person-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .p-avatar {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: #080810;
+    flex-shrink: 0;
+  }
+
+  .p-avatar.empty { background: var(--surface2); color: var(--muted); }
+
+  .p-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .p-count {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .p-count.has { color: var(--accent3); }
+
+  .p-key {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-family: monospace;
+  }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+
+  .person-card.open .chevron { transform: rotate(180deg); }
+
+  .songs-list {
+    display: none;
+    padding: 0 20px 16px;
+  }
+
+  .person-card.open .songs-list { display: block; }
+
+  .no-songs {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 14px 0 6px;
+    font-style: italic;
+  }
+
+  .song-entry {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .song-entry:last-child { border-bottom: none; }
+
+  .song-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .song-title-text {
+    font-weight: 500;
+    font-size: 15px;
+  }
+
+  .song-artist-text {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .song-rating-stars {
+    color: var(--accent);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .song-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    background: var(--surface2);
+    border-radius: 20px;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 3px 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .tag.genre { color: var(--accent3); background: rgba(107,245,255,0.08); }
+  .tag.mood { color: var(--text); }
+
+  .song-note-text {
+    font-size: 13px;
+    color: #9090a8;
+    font-style: italic;
+    line-height: 1.5;
+    border-left: 2px solid var(--border);
+    padding-left: 10px;
+  }
+
+  .song-date {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* EXPORT */
+  .export-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 18px;
+    transition: all 0.2s;
+  }
+
+  .export-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* MASTER TABLE VIEW */
+  #table-view { display: none; padding: 0 32px 48px; }
+
+  .view-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .view-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 7px 16px;
+    transition: all 0.2s;
+  }
+
+  .view-btn.active {
+    background: rgba(232,255,71,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--surface);
+    text-align: left;
+  }
+
+  th {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 12px 14px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  @media (max-width: 640px) {
+    .topbar, .dash-header, .filter-bar, .grid, #table-view { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">THE <span>PLAYLIST</span></div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <span class="badge" id="admin-badge" style="display:none">ADMIN</span>
+    <button class="btn-logout" id="logout-btn" style="display:none" onclick="doLogout()">Log Out</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="admin-login">
+  <div class="login-card">
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">Enter the admin password to view all submissions.</div>
+    <div class="error-msg" id="admin-error">Incorrect password. Try again.</div>
+    <label>Admin Password</label>
+    <input type="password" id="admin-pw" placeholder="••••••••">
+    <button class="btn" onclick="doAdminLogin()">ACCESS DASHBOARD</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="admin-dashboard">
+  <div class="dash-header">
+    <div>
+      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Master View</div>
+      <div class="dash-title">All Submissions</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num" id="stat-total">0</div><div class="lbl">Songs</div></div>
+      <div class="stat-chip"><div class="num" id="stat-people">0</div><div class="lbl">People</div></div>
+      <div class="stat-chip"><div class="num" id="stat-genres">0</div><div class="lbl">Genres</div></div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="view-toggle">
+      <button class="view-btn active" id="view-cards-btn" onclick="setView('cards')">Cards</button>
+      <button class="view-btn" id="view-table-btn" onclick="setView('table')">Table</button>
+    </div>
+    <input type="text" id="search-input" placeholder="Search songs, artists..." oninput="renderDash()">
+    <select id="genre-filter" onchange="renderDash()">
+      <option value="">All Genres</option>
+    </select>
+    <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <div class="grid" id="cards-grid"></div>
+  <div id="table-view">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th>Person</th>
+          <th>Song</th>
+          <th>Artist</th>
+          <th>Genre</th>
+          <th>Mood</th>
+          <th>Rating</th>
+          <th>Note</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // ADMIN PASSWORD — change this!
+  // ============================================================
+  const ADMIN_PASSWORD = "ioinfoinf,msasmn2-38902399u384jskncdsn2ou32ur";
+
+  // ============================================================
+  // USER ROSTER — must match index.html
+  // ============================================================
+  const USERS = {
+    "AV3K": { name: "Ava" },
+    "BR9M": { name: "Brendan" },
+    "BK4X": { name: "Brooks" },
+    "CT7P": { name: "Carter" },
+    "CD2W": { name: "Charlotte D" },
+    "CU5R": { name: "Charlotte U" },
+    "CL8N": { name: "Clara" },
+    "EV1Q": { name: "Evelyn" },
+    "FN6T": { name: "Fin" },
+    "GR3Y": { name: "Grayson" },
+    "GF0L": { name: "Griffin" },
+    "IB7S": { name: "Isabel" },
+    "JD4V": { name: "Jaden" },
+    "JM2H": { name: "Jimmy" },
+    "JL9E": { name: "Julian" },
+    "RG5B": { name: "Regan" },
+    "RJ0C": { name: "RJ" },
+    "RY8A": { name: "Ryan" },
+    "ST6Z": { name: "Steve" },
+  };
+
+  let allData = {};
+  let currentView = 'cards';
+
+  function doAdminLogin() {
+    const pw = document.getElementById('admin-pw').value;
+    if (pw !== ADMIN_PASSWORD) {
+      document.getElementById('admin-error').classList.add('show');
+      return;
+    }
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    document.getElementById('admin-badge').style.display = 'inline';
+    document.getElementById('logout-btn').style.display = 'inline';
+    loadAllData();
+  }
+
+  function doLogout() {
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-login').style.display = 'flex';
+    document.getElementById('admin-dashboard').style.display = 'none';
+    document.getElementById('admin-badge').style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'none';
+  }
+
+  document.getElementById('admin-pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doAdminLogin();
+  });
+
+  async function loadAllData() {
+    allData = {};
+    for (const [key, user] of Object.entries(USERS)) {
+      try {
+        const res = await window.storage.get('songs:' + key);
+        allData[key] = res ? JSON.parse(res.value) : [];
+      } catch(e) {
+        allData[key] = [];
+      }
+    }
+    populateGenreFilter();
+    renderDash();
+  }
+
+  function populateGenreFilter() {
+    const genres = new Set();
+    for (const songs of Object.values(allData)) {
+      songs.forEach(s => { if (s.genre) genres.add(s.genre); });
+    }
+    const sel = document.getElementById('genre-filter');
+    sel.innerHTML = '<option value="">All Genres</option>';
+    [...genres].sort().forEach(g => {
+      sel.innerHTML += `<option>${g}</option>`;
+    });
+  }
+
+  function renderDash() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const genreF = document.getElementById('genre-filter').value;
+
+    let totalSongs = 0, peopleWithSongs = 0, allGenres = new Set();
+
+    if (currentView === 'cards') {
+      const grid = document.getElementById('cards-grid');
+      grid.innerHTML = '';
+      for (const [key, user] of Object.entries(USERS)) {
+        let songs = allData[key] || [];
+        // filter
+        let filtered = songs.filter(s => {
+          if (genreF && s.genre !== genreF) return false;
+          if (search && !s.title.toLowerCase().includes(search) && !s.artist.toLowerCase().includes(search)) return false;
+          return true;
+        });
+        totalSongs += songs.length;
+        if (songs.length) peopleWithSongs++;
+        songs.forEach(s => { if (s.genre) allGenres.add(s.genre); });
+
+        const card = document.createElement('div');
+        card.className = 'person-card' + (songs.length ? ' has-songs' : '');
+
+        card.innerHTML = `
+          <div class="person-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="p-avatar ${!songs.length ? 'empty' : ''}">${user.name[0]}</div>
+            <div>
+              <div class="p-name">${user.name}</div>
+              <div class="p-key">${key}</div>
+            </div>
+            <div class="p-count ${songs.length ? 'has' : ''}" style="margin-left:auto;margin-right:8px">
+              ${songs.length} song${songs.length !== 1 ? 's' : ''}
+            </div>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="songs-list">
+            ${filtered.length === 0 && songs.length > 0
+              ? '<div class="no-songs">No songs match your filter.</div>'
+              : filtered.length === 0
+              ? '<div class="no-songs">No submissions yet.</div>'
+              : filtered.map(s => songEntryHTML(s)).join('')
+            }
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      document.getElementById('stat-total').textContent = totalSongs;
+      document.getElementById('stat-people').textContent = peopleWithSongs;
+      document.getElementById('stat-genres').textContent = allGenres.size;
+
+    } else {
+      // Table view
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      let rows = [];
+      for (const [key, user] of Object.entries(USERS)) {
+        (allData[key] || []).forEach(s => rows.push({ ...s, personName: user.name }));
+      }
+      rows = rows.filter(s => {
+        if (genreF && s.genre !== genreF) return false;
+        if (search && !s.title.toLowerCase().includes(search) && !s.artist.toLowerCase().includes(search)) return false;
+        return true;
+      });
+      rows.sort((a,b) => a.personName.localeCompare(b.personName));
+      rows.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.personName}</td>
+          <td>${s.title}</td>
+          <td style="color:var(--muted)">${s.artist}</td>
+          <td><span class="tag genre">${s.genre}</span></td>
+          <td>${(s.moods || []).join(', ') || '—'}</td>
+          <td style="color:var(--accent)">${s.rating ? '★'.repeat(s.rating) : '—'}</td>
+          <td style="color:var(--muted);font-style:italic;max-width:200px">${s.note || '—'}</td>
+          <td style="color:var(--muted)">${s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  function songEntryHTML(s) {
+    return `
+      <div class="song-entry">
+        <div class="song-top">
+          <div>
+            <div class="song-title-text">${s.title}</div>
+            <div class="song-artist-text">${s.artist}</div>
+          </div>
+          ${s.rating ? `<div class="song-rating-stars">${'★'.repeat(s.rating)}</div>` : ''}
+        </div>
+        <div class="song-tags">
+          ${s.genre ? `<span class="tag genre">${s.genre}</span>` : ''}
+          ${(s.moods || []).map(m => `<span class="tag mood">${m}</span>`).join('')}
+        </div>
+        ${s.note ? `<div class="song-note-text">"${s.note}"</div>` : ''}
+        <div class="song-date">${s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ''}</div>
+      </div>
+    `;
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('cards-grid').style.display = v === 'cards' ? 'grid' : 'none';
+    document.getElementById('table-view').style.display = v === 'table' ? 'block' : 'none';
+    document.getElementById('view-cards-btn').classList.toggle('active', v === 'cards');
+    document.getElementById('view-table-btn').classList.toggle('active', v === 'table');
+    renderDash();
+  }
+
+  function exportCSV() {
+    const rows = [['Person','Song','Artist','Genre','Moods','Rating','Note','Date']];
+    for (const [key, user] of Object.entries(USERS)) {
+      (allData[key] || []).forEach(s => {
+        rows.push([
+          user.name, s.title, s.artist, s.genre,
+          (s.moods || []).join('; '),
+          s.rating || '',
+          s.note || '',
+          s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ''
+        ]);
+      });
+    }
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'playlist_submissions.csv';
+    a.click();
+  }
+</script>
+</body>
+</html>
